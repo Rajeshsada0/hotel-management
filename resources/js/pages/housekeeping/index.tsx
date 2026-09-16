@@ -19,6 +19,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import AppLayout from '@/layouts/app-layout';
 import type {
     Hotel,
@@ -148,22 +150,18 @@ export default function HousekeepingIndex({
             <Head title="Housekeeping & Maintenance" />
 
             <div className="flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                            <Sparkles className="h-6 w-6 text-primary" /> Housekeeping & Maintenance
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Live room status lifecycle: Dirty → Cleaning → Clean → Available.
-                        </p>
-                    </div>
-
+                {/* Hero Banner */}
+                <PageHero
+                    badge="Housekeeping & Facility"
+                    badgeIcon={Sparkles}
+                    title="Housekeeping & Maintenance"
+                    description="Real-time room cleanliness lifecycle tracking: Dirty → Cleaning → Inspected → Available."
+                >
                     <div className="flex items-center gap-2">
                         {/* Assign Cleaner Modal */}
                         <Dialog open={isAssignOpen} onOpenChange={setIsAssignOpen}>
                             <DialogTrigger asChild>
-                                <Button>
+                                <Button size="sm" className="bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium">
                                     <Brush className="mr-2 h-4 w-4" /> Assign Cleaning
                                 </Button>
                             </DialogTrigger>
@@ -260,8 +258,8 @@ export default function HousekeepingIndex({
                         {/* Report Maintenance Modal */}
                         <Dialog open={isMaintenanceOpen} onOpenChange={setIsMaintenanceOpen}>
                             <DialogTrigger asChild>
-                                <Button variant="outline">
-                                    <Wrench className="mr-2 h-4 w-4" /> Report Issue
+                                <Button variant="outline" size="sm" className="bg-white/95 text-slate-800 hover:bg-white hover:text-slate-900 border-0 shadow-sm font-medium">
+                                    <Wrench className="mr-2 h-4 w-4 text-slate-700" /> Report Issue
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-md">
@@ -335,49 +333,38 @@ export default function HousekeepingIndex({
                             </DialogContent>
                         </Dialog>
                     </div>
-                </div>
+                </PageHero>
 
-                {/* Status Counter Cards (Section 15) */}
+                {/* Status Counter Cards */}
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                    <Card className="border shadow-sm">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">Clean & Ready</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-emerald-600">{stats.clean}</div>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">Available for guest check-in</p>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="border shadow-sm">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">Dirty Rooms</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-rose-600">{stats.dirty}</div>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">Awaiting cleaning</p>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="border shadow-sm">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">Cleaning In-Progress</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-violet-600">{stats.cleaning}</div>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">Currently being cleaned</p>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="border shadow-sm">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-xs font-semibold uppercase text-muted-foreground">Maintenance</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-2xl font-bold text-orange-600">{stats.maintenance}</div>
-                            <p className="text-[11px] text-muted-foreground mt-0.5">Under repair</p>
-                        </CardContent>
-                    </Card>
+                    <StatCard
+                        title="Clean & Ready"
+                        value={stats.clean}
+                        subtitle="Available for check-in"
+                        icon={CheckCircle2}
+                        color="emerald"
+                    />
+                    <StatCard
+                        title="Dirty Rooms"
+                        value={stats.dirty}
+                        subtitle="Awaiting turnover"
+                        icon={AlertTriangle}
+                        color="rose"
+                    />
+                    <StatCard
+                        title="Cleaning In-Progress"
+                        value={stats.cleaning}
+                        subtitle="Turnover underway"
+                        icon={Brush}
+                        color="purple"
+                    />
+                    <StatCard
+                        title="Maintenance"
+                        value={stats.maintenance}
+                        subtitle="Tickets / under repair"
+                        icon={Wrench}
+                        color="amber"
+                    />
                 </div>
 
                 {/* Tabs */}

@@ -7,6 +7,8 @@ import {
     Building2,
     CheckCircle2,
     Calendar,
+    Receipt,
+    DollarSign,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +17,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import AppLayout from '@/layouts/app-layout';
 import type { Hotel, Invoice } from '@/types';
 
@@ -71,34 +75,44 @@ export default function InvoiceShow({ invoice, hotel }: InvoiceShowProps) {
         <AppLayout breadcrumbs={[{ title: 'Invoices', href: '/invoices' }, { title: invoice.invoice_number, href: `/invoices/${invoice.id}` }]}>
             <Head title={`Invoice ${invoice.invoice_number}`} />
 
-            <div className="max-w-4xl mx-auto flex flex-col gap-6 p-6">
-                {/* Control Action Bar (Hidden on print) */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 print:hidden">
-                    <div className="flex items-center gap-3">
-                        <Button variant="outline" size="icon" asChild>
-                            <Link href="/invoices">
-                                <ArrowLeft className="h-4 w-4" />
-                            </Link>
-                        </Button>
-                        <div>
-                            <h1 className="text-xl font-bold tracking-tight text-foreground">
-                                Folio Invoice {invoice.invoice_number}
-                            </h1>
-                            <p className="text-xs text-muted-foreground">Guest Billing Statement</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <Button variant="outline" onClick={() => window.print()}>
-                            <Printer className="mr-2 h-4 w-4" /> Print / PDF
-                        </Button>
-
-                        <Dialog open={isAddChargeOpen} onOpenChange={setIsAddChargeOpen}>
-                            <DialogTrigger asChild>
-                                <Button variant="outline">
-                                    <Plus className="mr-1.5 h-4 w-4" /> Add Charge
+            <div className="flex h-full flex-1 flex-col gap-6 p-6">
+                {/* Hero Header (Hidden on print) */}
+                <div className="print:hidden">
+                    <PageHero
+                        badge={`Folio #${invoice.invoice_number}`}
+                        badgeIcon={<Receipt className="h-3.5 w-3.5" />}
+                        title={`Folio Invoice: ${invoice.guest?.full_name || 'Guest Billing'}`}
+                        description={`Reservation ${invoice.reservation?.booking_number || 'Direct Folio'} • Room: ${invoice.reservation?.room?.room_number ? `Room ${invoice.reservation.room.room_number}` : 'Standard'} • Issued: ${invoice.issue_date}`}
+                        actions={
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <Button
+                                    variant="outline"
+                                    asChild
+                                    className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm shadow-sm"
+                                >
+                                    <Link href="/invoices">
+                                        <ArrowLeft className="mr-1.5 h-4 w-4" />
+                                        Invoices
+                                    </Link>
                                 </Button>
-                            </DialogTrigger>
+
+                                <Button
+                                    variant="outline"
+                                    onClick={() => window.print()}
+                                    className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm shadow-sm"
+                                >
+                                    <Printer className="mr-2 h-4 w-4" /> Print / PDF
+                                </Button>
+
+                                <Dialog open={isAddChargeOpen} onOpenChange={setIsAddChargeOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm shadow-sm"
+                                        >
+                                            <Plus className="mr-1.5 h-4 w-4" /> Add Charge
+                                        </Button>
+                                    </DialogTrigger>
                             <DialogContent className="max-w-md">
                                 <DialogHeader>
                                     <DialogTitle>Add Folio Charge</DialogTitle>
@@ -172,77 +186,111 @@ export default function InvoiceShow({ invoice, hotel }: InvoiceShowProps) {
                             </DialogContent>
                         </Dialog>
 
-                        {balance > 0 && (
-                            <Dialog open={isPaymentOpen} onOpenChange={setIsPaymentOpen}>
-                                <DialogTrigger asChild>
-                                    <Button>
-                                        <CreditCard className="mr-2 h-4 w-4" /> Collect Payment
-                                    </Button>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-md">
-                                    <DialogHeader>
-                                        <DialogTitle>Record Payment</DialogTitle>
-                                    </DialogHeader>
-                                    <form onSubmit={handlePaymentSubmit} className="space-y-4 pt-2">
-                                        <div className="space-y-1.5">
-                                            <Label htmlFor="amount">Amount ($)</Label>
-                                            <Input
-                                                id="amount"
-                                                type="number"
-                                                step="0.01"
-                                                value={paymentData.amount}
-                                                onChange={(e) => setPaymentData('amount', e.target.value)}
-                                                required
-                                            />
-                                        </div>
-
-                                        <div className="space-y-1.5">
-                                            <Label htmlFor="payment_method">Payment Method</Label>
-                                            <Select
-                                                value={paymentData.payment_method}
-                                                onValueChange={(val) => setPaymentData('payment_method', val)}
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="cash">Cash</SelectItem>
-                                                    <SelectItem value="credit_card">Credit Card</SelectItem>
-                                                    <SelectItem value="debit_card">Debit Card</SelectItem>
-                                                    <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                                                    <SelectItem value="mobile_payment">Mobile Payment</SelectItem>
-                                                    <SelectItem value="online">Online</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-
-                                        <div className="space-y-1.5">
-                                            <Label htmlFor="transaction_number">Transaction / Ref #</Label>
-                                            <Input
-                                                id="transaction_number"
-                                                value={paymentData.transaction_number}
-                                                onChange={(e) => setPaymentData('transaction_number', e.target.value)}
-                                                placeholder="Approval code or transfer reference"
-                                            />
-                                        </div>
-
-                                        <div className="flex justify-end gap-2 pt-2">
-                                            <Button type="button" variant="outline" onClick={() => setIsPaymentOpen(false)}>
-                                                Cancel
+                                {balance > 0 && (
+                                    <Dialog open={isPaymentOpen} onOpenChange={setIsPaymentOpen}>
+                                        <DialogTrigger asChild>
+                                            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm font-semibold">
+                                                <CreditCard className="mr-2 h-4 w-4" /> Collect Payment
                                             </Button>
-                                            <Button type="submit" disabled={paymentProcessing}>
-                                                Record Payment
-                                            </Button>
-                                        </div>
-                                    </form>
-                                </DialogContent>
-                            </Dialog>
-                        )}
-                    </div>
+                                        </DialogTrigger>
+                                        <DialogContent className="max-w-md">
+                                            <DialogHeader>
+                                                <DialogTitle>Record Payment</DialogTitle>
+                                            </DialogHeader>
+                                            <form onSubmit={handlePaymentSubmit} className="space-y-4 pt-2">
+                                                <div className="space-y-1.5">
+                                                    <Label htmlFor="amount">Amount ($)</Label>
+                                                    <Input
+                                                        id="amount"
+                                                        type="number"
+                                                        step="0.01"
+                                                        value={paymentData.amount}
+                                                        onChange={(e) => setPaymentData('amount', e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+
+                                                <div className="space-y-1.5">
+                                                    <Label htmlFor="payment_method">Payment Method</Label>
+                                                    <Select
+                                                        value={paymentData.payment_method}
+                                                        onValueChange={(val) => setPaymentData('payment_method', val)}
+                                                    >
+                                                        <SelectTrigger>
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="cash">Cash</SelectItem>
+                                                            <SelectItem value="credit_card">Credit Card</SelectItem>
+                                                            <SelectItem value="debit_card">Debit Card</SelectItem>
+                                                            <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                                                            <SelectItem value="mobile_payment">Mobile Payment</SelectItem>
+                                                            <SelectItem value="online">Online</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+
+                                                <div className="space-y-1.5">
+                                                    <Label htmlFor="transaction_number">Transaction / Ref #</Label>
+                                                    <Input
+                                                        id="transaction_number"
+                                                        value={paymentData.transaction_number}
+                                                        onChange={(e) => setPaymentData('transaction_number', e.target.value)}
+                                                        placeholder="Approval code or transfer reference"
+                                                    />
+                                                </div>
+
+                                                <div className="flex justify-end gap-2 pt-2">
+                                                    <Button type="button" variant="outline" onClick={() => setIsPaymentOpen(false)}>
+                                                        Cancel
+                                                    </Button>
+                                                    <Button type="submit" disabled={paymentProcessing}>
+                                                        Record Payment
+                                                    </Button>
+                                                </div>
+                                            </form>
+                                        </DialogContent>
+                                    </Dialog>
+                                )}
+                            </div>
+                        }
+                    />
                 </div>
 
-                {/* Printable Invoice Container (Section 12 Layout) */}
-                <div className="rounded-xl border bg-card p-8 shadow-sm print:border-none print:shadow-none print:p-0">
+                {/* 4 StatCards (Hidden on print) */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 print:hidden">
+                    <StatCard
+                        title="Subtotal Charges"
+                        value={`${currency}${Number(invoice.subtotal).toFixed(2)}`}
+                        icon={Receipt}
+                        variant="blue"
+                        description="Room & incidentals"
+                    />
+                    <StatCard
+                        title="Taxes & Surcharges"
+                        value={`${currency}${Number(invoice.tax).toFixed(2)}`}
+                        icon={DollarSign}
+                        variant="purple"
+                        description={`Discount: -${currency}${Number(invoice.discount).toFixed(2)}`}
+                    />
+                    <StatCard
+                        title="Payments Received"
+                        value={`${currency}${Number(invoice.paid_amount).toFixed(2)}`}
+                        icon={CreditCard}
+                        variant="emerald"
+                        description="Settled transactions"
+                    />
+                    <StatCard
+                        title="Balance Due"
+                        value={`${currency}${balance.toFixed(2)}`}
+                        icon={DollarSign}
+                        variant={balance > 0 ? 'rose' : 'emerald'}
+                        description={balance > 0 ? 'Payment outstanding' : 'Folio fully settled'}
+                    />
+                </div>
+
+                {/* Printable Invoice Container */}
+                <div className="rounded-xl border border-border/60 bg-card p-8 shadow-sm print:border-none print:shadow-none print:p-0">
                     {/* Hotel Header */}
                     <div className="flex justify-between items-start border-b pb-6">
                         <div>

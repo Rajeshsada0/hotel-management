@@ -24,6 +24,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import AppLayout from '@/layouts/app-layout';
 import type {
     Hotel,
@@ -245,96 +247,76 @@ export default function InventoryIndex({
             <Head title="Inventory & Supplies" />
 
             <div className="flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                            <Boxes className="h-6 w-6 text-primary" /> Inventory & Hotel Supplies
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Manage linens, toiletries, food & beverage stock, suppliers, purchase orders, and adjustments.
-                        </p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                                setMovementData('inventory_item_id', items[0]?.id ? String(items[0].id) : '');
-                                setMovementData('quantity', '1');
-                                setIsStockMovementOpen(true);
-                            }}
-                        >
-                            <RefreshCw className="h-4 w-4 mr-1.5" /> Stock Movement
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                                handleAddPoLine();
-                                setIsCreatePOOpen(true);
-                            }}
-                        >
-                            <Truck className="h-4 w-4 mr-1.5" /> New Purchase Order
-                        </Button>
-                        <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => setIsAddItemOpen(true)}
-                        >
-                            <Plus className="h-4 w-4 mr-1.5" /> New Stock Item
-                        </Button>
-                    </div>
-                </div>
+                {/* Hero Banner */}
+                <PageHero
+                    badge="Supply Chain & Procurement"
+                    badgeIcon={Boxes}
+                    title="Inventory & Hotel Supplies"
+                    description="Manage linens, toiletries, food & beverage supplies, vendors, purchase orders, and stock adjustments."
+                >
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-white/95 text-slate-800 hover:bg-white hover:text-slate-900 border-0 shadow-sm font-medium"
+                        onClick={() => {
+                            setMovementData('inventory_item_id', items[0]?.id ? String(items[0].id) : '');
+                            setMovementData('quantity', '1');
+                            setIsStockMovementOpen(true);
+                        }}
+                    >
+                        <RefreshCw className="h-4 w-4 mr-1.5 text-slate-700" /> Stock Movement
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-white/95 text-slate-800 hover:bg-white hover:text-slate-900 border-0 shadow-sm font-medium"
+                        onClick={() => {
+                            handleAddPoLine();
+                            setIsCreatePOOpen(true);
+                        }}
+                    >
+                        <Truck className="h-4 w-4 mr-1.5 text-slate-700" /> New PO
+                    </Button>
+                    <Button
+                        variant="default"
+                        size="sm"
+                        className="bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium"
+                        onClick={() => setIsAddItemOpen(true)}
+                    >
+                        <Plus className="h-4 w-4 mr-1.5" /> New Stock Item
+                    </Button>
+                </PageHero>
 
                 {/* Stat Counters */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardDescription>Total Tracked Items</CardDescription>
-                            <CardTitle className="text-2xl font-bold">{items.length}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-xs text-muted-foreground">Across all hotel departments</span>
-                        </CardContent>
-                    </Card>
-
-                    <Card className={lowStockCount > 0 ? 'border-amber-500/50 bg-amber-500/5' : ''}>
-                        <CardHeader className="pb-2">
-                            <div className="flex items-center justify-between">
-                                <CardDescription>Low Stock Alerts</CardDescription>
-                                {lowStockCount > 0 && <AlertTriangle className="h-4 w-4 text-amber-500" />}
-                            </div>
-                            <CardTitle className={`text-2xl font-bold ${lowStockCount > 0 ? 'text-amber-600 dark:text-amber-400' : ''}`}>
-                                {lowStockCount}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-xs text-muted-foreground">
-                                {lowStockCount > 0 ? 'Urgent reordering needed' : 'All stock levels healthy'}
-                            </span>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardDescription>Registered Suppliers</CardDescription>
-                            <CardTitle className="text-2xl font-bold">{suppliers.length}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-xs text-muted-foreground">Active supply chain vendors</span>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardDescription>Purchase Orders</CardDescription>
-                            <CardTitle className="text-2xl font-bold">{purchases.total}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-xs text-muted-foreground">PO procurement orders</span>
-                        </CardContent>
-                    </Card>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <StatCard
+                        title="Tracked Items"
+                        value={items.length}
+                        subtitle="Across all departments"
+                        icon={Boxes}
+                        color="blue"
+                    />
+                    <StatCard
+                        title="Low Stock Alerts"
+                        value={lowStockCount}
+                        subtitle={lowStockCount > 0 ? 'Urgent reordering needed' : 'All stock healthy'}
+                        icon={AlertTriangle}
+                        color={lowStockCount > 0 ? 'amber' : 'emerald'}
+                    />
+                    <StatCard
+                        title="Active Suppliers"
+                        value={suppliers.length}
+                        subtitle="Supply chain vendors"
+                        icon={Truck}
+                        color="purple"
+                    />
+                    <StatCard
+                        title="Purchase Orders"
+                        value={purchases.total}
+                        subtitle="Procurement tickets"
+                        icon={PackageCheck}
+                        color="emerald"
+                    />
                 </div>
 
                 {/* Tabs */}

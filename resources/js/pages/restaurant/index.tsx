@@ -27,6 +27,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import AppLayout from '@/layouts/app-layout';
 import type {
     Hotel,
@@ -254,32 +256,61 @@ export default function RestaurantIndex({
             <Head title="Restaurant & POS Terminal" />
 
             <div className="flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                            <UtensilsCrossed className="h-6 w-6 text-primary" /> Restaurant & POS Terminal
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Point of sale register, dining tables, kitchen orders, and guest room charge billing.
-                        </p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setIsAddTableOpen(true)}
-                        >
-                            <Armchair className="h-4 w-4 mr-2" /> Add Table
-                        </Button>
-                        <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => setIsAddProductOpen(true)}
-                        >
-                            <Plus className="h-4 w-4 mr-2" /> Add Menu Item
-                        </Button>
-                    </div>
+                {/* Hero Banner */}
+                <PageHero
+                    badge="Food & Beverage / POS"
+                    badgeIcon={UtensilsCrossed}
+                    title="Restaurant & POS Terminal"
+                    description="Point of sale register, dining tables, digital menu catalog, and guest room charge billing."
+                >
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-white/95 text-slate-800 hover:bg-white hover:text-slate-900 border-0 shadow-sm font-medium"
+                        onClick={() => setIsAddTableOpen(true)}
+                    >
+                        <Armchair className="h-4 w-4 mr-2 text-slate-700" /> Add Table
+                    </Button>
+                    <Button
+                        variant="default"
+                        size="sm"
+                        className="bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium"
+                        onClick={() => setIsAddProductOpen(true)}
+                    >
+                        <Plus className="h-4 w-4 mr-2" /> Add Menu Item
+                    </Button>
+                </PageHero>
+
+                {/* KPI Stat Cards */}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <StatCard
+                        title="Occupied Tables"
+                        value={`${tables.filter((t) => t.status === 'occupied').length} / ${tables.length}`}
+                        subtitle="Dining room utilization"
+                        icon={Armchair}
+                        color="blue"
+                    />
+                    <StatCard
+                        title="Orders Processed"
+                        value={orders.total}
+                        subtitle="All registered tickets"
+                        icon={Receipt}
+                        color="emerald"
+                    />
+                    <StatCard
+                        title="Menu Categories"
+                        value={categories.length}
+                        subtitle="Active menu departments"
+                        icon={Coffee}
+                        color="purple"
+                    />
+                    <StatCard
+                        title="In-House Guests"
+                        value={inHouseReservations.length}
+                        subtitle="Eligible for room charge"
+                        icon={BedDouble}
+                        color="amber"
+                    />
                 </div>
 
                 {/* Navigation Tabs */}

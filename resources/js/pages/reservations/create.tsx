@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageHero } from '@/components/page-hero';
 import AppLayout from '@/layouts/app-layout';
 import type { Guest, Hotel, Room, RoomType } from '@/types';
 
@@ -153,28 +154,33 @@ export default function CreateReservation({
         <AppLayout breadcrumbs={[{ title: 'Reservations', href: '/reservations' }, { title: 'New Booking', href: '/reservations/create' }]}>
             <Head title="Create New Reservation" />
 
-            <div className="max-w-4xl mx-auto flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className="flex items-center gap-4">
-                    <Button variant="outline" size="icon" asChild>
-                        <Link href="/reservations">
-                            <ArrowLeft className="h-4 w-4" />
-                        </Link>
-                    </Button>
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground">New Reservation</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Book a room with automated double-booking checks and rate calculation.
-                        </p>
-                    </div>
-                </div>
+            <div className="flex h-full flex-1 flex-col gap-6 p-6">
+                <PageHero
+                    bgImage={hotel?.banner_image || '/images/dashboard-banner.jpg'}
+                    gradientClass={hotel?.banner_color || 'bg-gradient-to-r from-[#143d91] via-[#1a4ab9]/95 via-45% to-transparent'}
+                    badge="Front Desk Booking"
+                    badgeIcon={<CalendarCheck className="h-3.5 w-3.5" />}
+                    title="Create New Reservation"
+                    description="Allocate rooms with real-time double-booking verification, apply seasonal promo codes, and configure initial guest deposits."
+                    actions={
+                        <Button
+                            asChild
+                            className="bg-white text-slate-800 hover:bg-slate-50 border-0 shadow-sm font-semibold text-xs px-3.5 py-2 h-9 rounded-lg"
+                        >
+                            <Link href="/reservations">
+                                <ArrowLeft className="mr-2 h-4 w-4 text-slate-700" />
+                                Back to Reservations
+                            </Link>
+                        </Button>
+                    }
+                />
 
                 <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Left 2 Cols: Form Inputs */}
                     <div className="md:col-span-2 space-y-6">
                         {/* Guest Selection */}
-                        <Card>
-                            <CardHeader className="pb-3">
+                        <Card className="rounded-xl border border-border/60 shadow-sm bg-card">
+                            <CardHeader className="pb-3 border-b border-border/40">
                                 <CardTitle className="text-base font-semibold flex items-center gap-2">
                                     <Users className="h-4 w-4 text-primary" /> Guest Selection
                                 </CardTitle>
@@ -205,8 +211,8 @@ export default function CreateReservation({
                         </Card>
 
                         {/* Stay Dates & Category */}
-                        <Card>
-                            <CardHeader className="pb-3">
+                        <Card className="rounded-xl border border-border/60 shadow-sm bg-card">
+                            <CardHeader className="pb-3 border-b border-border/40">
                                 <CardTitle className="text-base font-semibold flex items-center gap-2">
                                     <BedDouble className="h-4 w-4 text-primary" /> Stay & Room Allocation
                                 </CardTitle>
@@ -328,8 +334,8 @@ export default function CreateReservation({
                         </Card>
 
                         {/* Special Requests */}
-                        <Card>
-                            <CardHeader className="pb-3">
+                        <Card className="rounded-xl border border-border/60 shadow-sm bg-card">
+                            <CardHeader className="pb-3 border-b border-border/40">
                                 <CardTitle className="text-base font-semibold">Special Requests & Notes</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
@@ -357,8 +363,8 @@ export default function CreateReservation({
 
                     {/* Right Col: Price Calculation & Summary */}
                     <div className="space-y-6">
-                        <Card className="sticky top-6 border shadow-sm">
-                            <CardHeader className="pb-3">
+                        <Card className="sticky top-6 rounded-xl border border-border/60 shadow-sm bg-card overflow-hidden">
+                            <CardHeader className="pb-3 border-b border-border/40 bg-muted/20">
                                 <CardTitle className="text-base font-semibold flex items-center gap-2">
                                     <Calculator className="h-4 w-4 text-primary" /> Pricing Summary
                                 </CardTitle>
@@ -460,7 +466,11 @@ export default function CreateReservation({
                                     />
                                 </div>
 
-                                <Button type="submit" disabled={processing} className="w-full mt-4">
+                                <Button
+                                    type="submit"
+                                    disabled={processing}
+                                    className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm h-10"
+                                >
                                     {processing ? 'Creating Booking...' : 'Confirm Reservation'}
                                 </Button>
                             </CardContent>

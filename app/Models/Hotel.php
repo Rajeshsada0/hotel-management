@@ -20,6 +20,8 @@ class Hotel extends Model
         'website',
         'tax_number',
         'logo',
+        'banner_image',
+        'banner_color',
         'currency',
         'currency_symbol',
         'check_in_time',

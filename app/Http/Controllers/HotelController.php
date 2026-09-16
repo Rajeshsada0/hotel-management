@@ -36,21 +36,30 @@ class HotelController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['sometimes', 'required', 'string', 'max:255'],
             'code' => ['nullable', 'string', 'max:50'],
-            'address' => ['required', 'string', 'max:255'],
-            'city' => ['required', 'string', 'max:100'],
-            'country' => ['required', 'string', 'max:100'],
-            'phone' => ['required', 'string', 'max:50'],
-            'email' => ['required', 'email', 'max:255'],
+            'address' => ['sometimes', 'required', 'string', 'max:255'],
+            'city' => ['sometimes', 'required', 'string', 'max:100'],
+            'country' => ['sometimes', 'required', 'string', 'max:100'],
+            'phone' => ['sometimes', 'required', 'string', 'max:50'],
+            'email' => ['sometimes', 'required', 'email', 'max:255'],
             'website' => ['nullable', 'url', 'max:255'],
             'tax_number' => ['nullable', 'string', 'max:50'],
-            'currency' => ['required', 'string', 'max:10'],
-            'currency_symbol' => ['required', 'string', 'max:10'],
-            'check_in_time' => ['required', 'string'],
-            'check_out_time' => ['required', 'string'],
-            'status' => ['required', 'in:active,inactive'],
+            'currency' => ['sometimes', 'required', 'string', 'max:10'],
+            'currency_symbol' => ['sometimes', 'required', 'string', 'max:10'],
+            'check_in_time' => ['sometimes', 'required', 'string'],
+            'check_out_time' => ['sometimes', 'required', 'string'],
+            'status' => ['sometimes', 'required', 'in:active,inactive'],
+            'banner_image' => ['nullable', 'string', 'max:1000'],
+            'banner_color' => ['nullable', 'string', 'max:255'],
+            'banner_file' => ['nullable', 'image', 'max:5120'], // 5MB max
         ]);
+
+        if ($request->hasFile('banner_file')) {
+            $path = $request->file('banner_file')->store('banners', 'public');
+            $validated['banner_image'] = '/storage/' . $path;
+        }
+        unset($validated['banner_file']);
 
         $hotel = Hotel::current() ?? Hotel::first();
 

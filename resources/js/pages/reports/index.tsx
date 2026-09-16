@@ -20,6 +20,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import AppLayout from '@/layouts/app-layout';
 import type { FinancialReport, Hotel, OccupancyReport, TopDishReport } from '@/types';
 
@@ -55,30 +57,25 @@ export default function ReportsIndex({
             <Head title="Hotel Reports & Analytics" />
 
             <div className="flex flex-col gap-6 p-6 print:p-0">
-                {/* Header & Filter Controls */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                            <BarChart3 className="h-6 w-6 text-primary" /> Reports & Business Analytics
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Audited financial statements, room occupancy performance, departmental revenue, and expenses.
-                        </p>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2 print:hidden">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.print()}
-                        >
-                            <Printer className="h-4 w-4 mr-1.5" /> Print / Export
-                        </Button>
-                    </div>
-                </div>
+                {/* Hero Banner */}
+                <PageHero
+                    badge="Financial Intelligence & Analytics"
+                    badgeIcon={BarChart3}
+                    title="Reports & Business Analytics"
+                    description="Audited financial statements, room occupancy performance, departmental revenue, and expenses."
+                >
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-white/95 text-slate-800 hover:bg-white hover:text-slate-900 border-0 shadow-sm font-medium print:hidden"
+                        onClick={() => window.print()}
+                    >
+                        <Printer className="h-4 w-4 mr-1.5 text-slate-700" /> Print / Export
+                    </Button>
+                </PageHero>
 
                 {/* Date Period Filter Pills */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b pb-4 print:hidden">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-border/60 pb-4 print:hidden">
                     <div className="flex flex-wrap gap-1.5">
                         {[
                             { key: 'today', label: 'Today' },
@@ -92,15 +89,19 @@ export default function ReportsIndex({
                                 variant={period === p.key ? 'default' : 'outline'}
                                 size="sm"
                                 onClick={() => handlePeriodChange(p.key)}
-                                className="text-xs rounded-full"
+                                className={`text-xs rounded-full ${
+                                    period === p.key
+                                        ? 'bg-blue-600 hover:bg-blue-500 text-white shadow-sm'
+                                        : 'bg-card hover:bg-muted text-muted-foreground'
+                                }`}
                             >
                                 {p.label}
                             </Button>
                         ))}
                     </div>
 
-                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground bg-muted/40 px-3 py-1.5 rounded-lg">
-                        <Calendar className="h-4 w-4 text-primary" />
+                    <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground bg-muted/40 px-3 py-1.5 rounded-lg border border-border/50">
+                        <Calendar className="h-4 w-4 text-blue-600" />
                         <span>Reporting Window:</span>
                         <span className="font-semibold text-foreground">{startDate}</span>
                         <span>to</span>
@@ -109,87 +110,35 @@ export default function ReportsIndex({
                 </div>
 
                 {/* Executive Summary P&L KPI Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {/* Gross Revenue */}
-                    <Card className="border-emerald-500/30 bg-emerald-500/5">
-                        <CardHeader className="pb-2">
-                            <div className="flex items-center justify-between">
-                                <CardDescription className="text-emerald-700 dark:text-emerald-400 font-semibold">
-                                    Gross Revenue
-                                </CardDescription>
-                                <TrendingUp className="h-4 w-4 text-emerald-600" />
-                            </div>
-                            <CardTitle className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                                {currency}{financial.gross_revenue.toFixed(2)}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-xs text-muted-foreground">
-                                Rooms ({currency}{financial.room_payments.toFixed(2)}) + POS ({currency}{financial.restaurant_direct_revenue.toFixed(2)})
-                            </span>
-                        </CardContent>
-                    </Card>
-
-                    {/* Operational Expenses */}
-                    <Card className="border-rose-500/30 bg-rose-500/5">
-                        <CardHeader className="pb-2">
-                            <div className="flex items-center justify-between">
-                                <CardDescription className="text-rose-700 dark:text-rose-400 font-semibold">
-                                    Operational Expenses
-                                </CardDescription>
-                                <TrendingDown className="h-4 w-4 text-rose-600" />
-                            </div>
-                            <CardTitle className="text-2xl font-bold text-rose-600 dark:text-rose-400">
-                                {currency}{financial.total_expenses.toFixed(2)}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-xs text-muted-foreground">
-                                Utilities, supplies, maintenance, payroll
-                            </span>
-                        </CardContent>
-                    </Card>
-
-                    {/* Net Operating Profit */}
-                    <Card className={`border-2 ${isProfitable ? 'border-emerald-500/50' : 'border-rose-500/50'}`}>
-                        <CardHeader className="pb-2">
-                            <div className="flex items-center justify-between">
-                                <CardDescription className="font-semibold text-foreground">
-                                    Net Operating Profit
-                                </CardDescription>
-                                <DollarSign className={`h-4 w-4 ${isProfitable ? 'text-emerald-600' : 'text-rose-600'}`} />
-                            </div>
-                            <CardTitle className={`text-2xl font-bold ${isProfitable ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                                {isProfitable ? '+' : ''}{currency}{financial.net_profit.toFixed(2)}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex items-center gap-2">
-                                <Badge variant={isProfitable ? 'outline' : 'destructive'} className="text-[10px] px-1.5 py-0">
-                                    {financial.profit_margin}% Margin
-                                </Badge>
-                                <span className="text-xs text-muted-foreground">Profit margin</span>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* Overall Occupancy Rate */}
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <div className="flex items-center justify-between">
-                                <CardDescription className="font-semibold">Average Occupancy</CardDescription>
-                                <Percent className="h-4 w-4 text-primary" />
-                            </div>
-                            <CardTitle className="text-2xl font-bold text-primary">
-                                {occupancy.occupancy_rate}%
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-xs text-muted-foreground">
-                                {occupancy.booked_nights} of {occupancy.total_available_room_nights} room nights sold
-                            </span>
-                        </CardContent>
-                    </Card>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <StatCard
+                        title="Gross Revenue"
+                        value={`${currency}${financial.gross_revenue.toFixed(2)}`}
+                        subtitle={`Rooms (${currency}${financial.room_payments.toFixed(2)}) + POS`}
+                        icon={TrendingUp}
+                        color="emerald"
+                    />
+                    <StatCard
+                        title="Operational Expenses"
+                        value={`${currency}${financial.total_expenses.toFixed(2)}`}
+                        subtitle="Utilities, supplies, payroll"
+                        icon={TrendingDown}
+                        color="rose"
+                    />
+                    <StatCard
+                        title="Net Operating Profit"
+                        value={`${isProfitable ? '+' : ''}${currency}${financial.net_profit.toFixed(2)}`}
+                        subtitle={`${financial.profit_margin}% profit margin`}
+                        icon={DollarSign}
+                        color={isProfitable ? 'emerald' : 'rose'}
+                    />
+                    <StatCard
+                        title="Average Occupancy"
+                        value={`${occupancy.occupancy_rate}%`}
+                        subtitle={`${occupancy.booked_nights} room nights sold`}
+                        icon={BedDouble}
+                        color="blue"
+                    />
                 </div>
 
                 {/* Financial Breakdown & Revenue Distribution */}

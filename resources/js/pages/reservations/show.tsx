@@ -11,6 +11,8 @@ import {
     LogOut,
     Receipt,
     Clock,
+    DollarSign,
+    BedDouble,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -20,6 +22,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import AppLayout from '@/layouts/app-layout';
 import type { Invoice, Reservation } from '@/types';
 
@@ -90,51 +94,81 @@ export default function ReservationShow({ reservation, invoice }: ReservationSho
         <AppLayout breadcrumbs={[{ title: 'Reservations', href: '/reservations' }, { title: reservation.booking_number, href: `/reservations/${reservation.id}` }]}>
             <Head title={`Reservation ${reservation.booking_number}`} />
 
-            <div className="max-w-5xl mx-auto flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                        <Button variant="outline" size="icon" asChild>
-                            <Link href="/reservations">
-                                <ArrowLeft className="h-4 w-4" />
-                            </Link>
-                        </Button>
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                                    {reservation.booking_number}
-                                </h1>
-                                <Badge variant="outline" className="capitalize font-semibold">
-                                    {reservation.booking_status.replace('_', ' ')}
-                                </Badge>
-                            </div>
-                            <p className="text-xs text-muted-foreground">
-                                Created on {new Date(reservation.created_at || '').toLocaleDateString()} · Source: {reservation.booking_source}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-2 flex-wrap">
-                        {reservation.booking_status === 'confirmed' && (
-                            <Button onClick={handleCheckIn}>
-                                <LogIn className="mr-2 h-4 w-4" /> Check In Guest
-                            </Button>
-                        )}
-
-                        {reservation.booking_status === 'checked_in' && (
-                            <Button onClick={handleCheckOut}>
-                                <LogOut className="mr-2 h-4 w-4" /> Check Out
-                            </Button>
-                        )}
-
-                        {invoice && (
-                            <Button variant="outline" asChild>
-                                <Link href={`/invoices/${invoice.id}`}>
-                                    <Receipt className="mr-2 h-4 w-4" /> Print Folio
+            <div className="flex h-full flex-1 flex-col gap-6 p-6">
+                <PageHero
+                    badge={`Booking #${reservation.booking_number}`}
+                    badgeIcon={<Calendar className="h-3.5 w-3.5" />}
+                    title={`${reservation.guest?.full_name || 'Guest Reservation'}`}
+                    description={`${reservation.room_type?.name ?? 'Room'} ${reservation.room ? `• Room ${reservation.room.room_number}` : '• Room Pending Assignment'} | Check-in: ${reservation.check_in_date} | Check-out: ${reservation.check_out_date}`}
+                    actions={
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <Button
+                                variant="outline"
+                                asChild
+                                className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm shadow-sm"
+                            >
+                                <Link href="/reservations">
+                                    <ArrowLeft className="mr-1.5 h-4 w-4" />
+                                    Reservations
                                 </Link>
                             </Button>
-                        )}
-                    </div>
+
+                            {reservation.booking_status === 'confirmed' && (
+                                <Button onClick={handleCheckIn} className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm font-semibold">
+                                    <LogIn className="mr-2 h-4 w-4" /> Check In Guest
+                                </Button>
+                            )}
+
+                            {reservation.booking_status === 'checked_in' && (
+                                <Button onClick={handleCheckOut} className="bg-amber-600 hover:bg-amber-700 text-white shadow-sm font-semibold">
+                                    <LogOut className="mr-2 h-4 w-4" /> Check Out
+                                </Button>
+                            )}
+
+                            {invoice && (
+                                <Button
+                                    asChild
+                                    className="bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-sm shadow-sm"
+                                >
+                                    <Link href={`/invoices/${invoice.id}`}>
+                                        <Receipt className="mr-2 h-4 w-4" /> Print Folio
+                                    </Link>
+                                </Button>
+                            )}
+                        </div>
+                    }
+                />
+
+                {/* 4 KPI Summary Cards */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <StatCard
+                        title="Total Folio Charges"
+                        value={`$${Number(invoice?.total_amount ?? reservation.total_amount).toFixed(2)}`}
+                        icon={Receipt}
+                        variant="blue"
+                        description="Billed items & stay"
+                    />
+                    <StatCard
+                        title="Payments Received"
+                        value={`$${Number(invoice?.paid_amount ?? reservation.paid_amount).toFixed(2)}`}
+                        icon={CreditCard}
+                        variant="emerald"
+                        description="Settled receipts"
+                    />
+                    <StatCard
+                        title="Balance Due"
+                        value={`$${balance.toFixed(2)}`}
+                        icon={DollarSign}
+                        variant={balance > 0 ? 'rose' : 'emerald'}
+                        description={balance > 0 ? 'Payment pending' : 'Zero balance / Paid'}
+                    />
+                    <StatCard
+                        title="Duration & Guests"
+                        value={`${reservation.total_nights} Nights`}
+                        icon={Users}
+                        variant="purple"
+                        description={`${reservation.adults} Adults · ${reservation.children} Children`}
+                    />
                 </div>
 
                 {/* Main Content Grid */}
@@ -143,11 +177,13 @@ export default function ReservationShow({ reservation, invoice }: ReservationSho
                     <div className="md:col-span-2 space-y-6">
                         {/* Guest & Stay Cards */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <Card>
-                                <CardHeader className="pb-2">
-                                    <CardTitle className="text-sm font-semibold text-muted-foreground">Guest Information</CardTitle>
+                            <Card className="rounded-xl border border-border/60 shadow-sm bg-card">
+                                <CardHeader className="pb-2 border-b border-border/40 bg-muted/20">
+                                    <CardTitle className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+                                        <Users className="h-4 w-4 text-blue-500" /> Guest Information
+                                    </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-1 text-sm">
+                                <CardContent className="space-y-1.5 pt-3 text-sm">
                                     <p className="font-bold text-base text-foreground">{reservation.guest?.full_name}</p>
                                     <p className="text-muted-foreground">📞 {reservation.guest?.phone}</p>
                                     <p className="text-muted-foreground">✉️ {reservation.guest?.email || 'N/A'}</p>
@@ -157,11 +193,13 @@ export default function ReservationShow({ reservation, invoice }: ReservationSho
                                 </CardContent>
                             </Card>
 
-                            <Card>
-                                <CardHeader className="pb-2">
-                                    <CardTitle className="text-sm font-semibold text-muted-foreground">Room & Stay Details</CardTitle>
+                            <Card className="rounded-xl border border-border/60 shadow-sm bg-card">
+                                <CardHeader className="pb-2 border-b border-border/40 bg-muted/20">
+                                    <CardTitle className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+                                        <BedDouble className="h-4 w-4 text-purple-500" /> Room & Stay Details
+                                    </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-1 text-sm">
+                                <CardContent className="space-y-1.5 pt-3 text-sm">
                                     <p className="font-bold text-base text-foreground">
                                         {reservation.room ? `Room ${reservation.room.room_number}` : 'Room Pending Assignment'}
                                     </p>
@@ -177,8 +215,8 @@ export default function ReservationShow({ reservation, invoice }: ReservationSho
                         </div>
 
                         {/* Folio Breakdown */}
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between pb-3">
+                        <Card className="rounded-xl border border-border/60 shadow-sm bg-card overflow-hidden">
+                            <CardHeader className="flex flex-row items-center justify-between pb-3 border-b border-border/40 bg-muted/20">
                                 <div>
                                     <CardTitle className="text-base font-semibold">Folio & Itemized Charges</CardTitle>
                                     <p className="text-xs text-muted-foreground">All room charges, restaurant, and incidentals</p>
@@ -294,11 +332,11 @@ export default function ReservationShow({ reservation, invoice }: ReservationSho
                         </Card>
 
                         {/* Payments Received */}
-                        <Card>
-                            <CardHeader className="pb-3">
+                        <Card className="rounded-xl border border-border/60 shadow-sm bg-card overflow-hidden">
+                            <CardHeader className="pb-3 border-b border-border/40 bg-muted/20">
                                 <CardTitle className="text-base font-semibold">Payment Transactions</CardTitle>
                             </CardHeader>
-                            <CardContent>
+                            <CardContent className="pt-4">
                                 {invoice?.payments && invoice.payments.length > 0 ? (
                                     <div className="overflow-x-auto rounded-lg border">
                                         <table className="w-full text-left text-sm">
@@ -317,7 +355,7 @@ export default function ReservationShow({ reservation, invoice }: ReservationSho
                                                         <td className="p-3 font-mono text-xs">{p.payment_number}</td>
                                                         <td className="p-3 capitalize text-xs">{p.payment_method.replace('_', ' ')}</td>
                                                         <td className="p-3 text-xs text-muted-foreground">
-                                                            {new Date(p.payment_date).toLocaleString()}
+                                                             {new Date(p.payment_date).toLocaleString()}
                                                         </td>
                                                         <td className="p-3 text-xs text-muted-foreground">{p.reference || p.transaction_number || '-'}</td>
                                                         <td className="p-3 text-right font-bold text-emerald-600">
@@ -337,11 +375,11 @@ export default function ReservationShow({ reservation, invoice }: ReservationSho
 
                     {/* Right Col: Balance & Actions */}
                     <div className="space-y-6">
-                        <Card className="border shadow-sm">
-                            <CardHeader className="pb-3">
+                        <Card className="rounded-xl border border-border/60 shadow-sm bg-card overflow-hidden sticky top-6">
+                            <CardHeader className="pb-3 border-b border-border/40 bg-muted/20">
                                 <CardTitle className="text-base font-semibold">Folio Financials</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-3 text-sm">
+                            <CardContent className="space-y-3 pt-4 text-sm">
                                 <div className="flex justify-between text-muted-foreground">
                                     <span>Subtotal</span>
                                     <span>${Number(invoice?.subtotal ?? reservation.subtotal).toFixed(2)}</span>
@@ -372,7 +410,7 @@ export default function ReservationShow({ reservation, invoice }: ReservationSho
                                 {invoice && (
                                     <Dialog open={isPaymentOpen} onOpenChange={setIsPaymentOpen}>
                                         <DialogTrigger asChild>
-                                            <Button className="w-full mt-4">
+                                            <Button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-sm h-10">
                                                 <CreditCard className="mr-2 h-4 w-4" /> Collect Payment
                                             </Button>
                                         </DialogTrigger>

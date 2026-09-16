@@ -20,6 +20,7 @@ import {
     Globe,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
+import AppLogoIcon from '@/components/app-logo-icon';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import {
@@ -137,16 +138,21 @@ export function AppSidebar() {
     ];
 
     return (
-        <Sidebar collapsible="icon" variant="inset" className="print:hidden">
-            <SidebarHeader>
+        <Sidebar collapsible="icon" variant="sidebar" className="print:hidden border-r border-sidebar-border bg-white">
+            <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size="lg" asChild>
-                            <Link href={dashboard()} prefetch>
-                                <AppLogo />
-                                <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">{hotel?.name || 'Hotel Management'}</span>
-                                    <span className="truncate text-xs text-muted-foreground">{hotel?.code || 'Main Branch'}</span>
+                        <SidebarMenuButton size="lg" asChild className="hover:bg-transparent px-0">
+                            <Link href={dashboard()} prefetch className="flex items-center gap-3">
+                                <AppLogoIcon className="size-9 text-[#0c1e4b]" />
+                                <div className="grid flex-1 text-left">
+                                    <span className="truncate text-[13px] font-bold text-slate-900 leading-tight">Laravel</span>
+                                    <span className="truncate text-[12px] font-semibold text-slate-700 leading-tight">
+                                        {hotel?.name || 'Grand Horizon'}
+                                    </span>
+                                    <span className="truncate text-[11px] font-medium text-slate-400 leading-tight mt-0.5">
+                                        {hotel?.code || 'GH-01'}
+                                    </span>
                                 </div>
                             </Link>
                         </SidebarMenuButton>
@@ -154,13 +160,13 @@ export function AppSidebar() {
                 </SidebarMenu>
             </SidebarHeader>
 
-            <SidebarContent>
-                <NavMain items={coreNavItems} label="Front Desk & Rooms" />
+            <SidebarContent className="px-1 py-2">
+                <NavMain items={coreNavItems} />
                 <NavMain items={operationsNavItems} label="Operations & Finance" />
                 <NavMain items={settingsNavItems} label="Hotel Configuration" />
             </SidebarContent>
 
-            <SidebarFooter>
+            <SidebarFooter className="border-t border-sidebar-border">
                 <NavUser />
             </SidebarFooter>
         </Sidebar>

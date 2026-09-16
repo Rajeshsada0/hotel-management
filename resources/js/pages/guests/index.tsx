@@ -18,6 +18,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import AppLayout from '@/layouts/app-layout';
 import type { Guest } from '@/types';
 
@@ -71,29 +73,24 @@ export default function GuestsIndex({ guests, filters }: GuestsProps) {
             <Head title="Guest Directory" />
 
             <div className="flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                            <Users className="h-6 w-6 text-primary" /> Guest Management
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Directory of guest profiles, stay history, IDs, and preferences.
-                        </p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-                            <DialogTrigger asChild>
-                                <Button>
-                                    <Plus className="mr-2 h-4 w-4" /> Add Guest
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-xl">
-                                <DialogHeader>
-                                    <DialogTitle>Register New Guest</DialogTitle>
-                                </DialogHeader>
-                                <form onSubmit={handleCreateGuest} className="space-y-4 pt-2">
+                {/* Hero Banner */}
+                <PageHero
+                    badge="Guest Directory & CRM"
+                    badgeIcon={Users}
+                    title="Guest Profiles & Directory"
+                    description="Maintain comprehensive guest profiles, passport and identification details, contact records, and stay history."
+                >
+                    <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+                        <DialogTrigger asChild>
+                            <Button size="sm" className="bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium">
+                                <Plus className="mr-2 h-4 w-4" /> Register Guest
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-xl">
+                            <DialogHeader>
+                                <DialogTitle>Register New Guest</DialogTitle>
+                            </DialogHeader>
+                            <form onSubmit={handleCreateGuest} className="space-y-4 pt-2">
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="space-y-1.5">
                                             <Label htmlFor="first_name">First Name</Label>
@@ -197,20 +194,51 @@ export default function GuestsIndex({ guests, filters }: GuestsProps) {
                                 </form>
                             </DialogContent>
                         </Dialog>
-                    </div>
+                </PageHero>
+
+                {/* KPI Stat Cards */}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <StatCard
+                        title="Total Registered"
+                        value={guests.total}
+                        subtitle="Guest CRM profiles"
+                        icon={Users}
+                        color="blue"
+                    />
+                    <StatCard
+                        title="With Email Contact"
+                        value={guests.data.filter((g) => !!g.email).length}
+                        subtitle="Digital receipts enabled"
+                        icon={Mail}
+                        color="emerald"
+                    />
+                    <StatCard
+                        title="Phone Verified"
+                        value={guests.data.filter((g) => !!g.phone).length}
+                        subtitle="SMS alerts available"
+                        icon={Phone}
+                        color="purple"
+                    />
+                    <StatCard
+                        title="International"
+                        value={guests.data.filter((g) => g.nationality && g.nationality !== 'United States').length}
+                        subtitle="Passports & visas"
+                        icon={Globe}
+                        color="amber"
+                    />
                 </div>
 
                 {/* Search Bar */}
-                <Card className="border shadow-sm">
-                    <CardContent className="pt-6">
+                <Card className="rounded-xl border border-border/60 shadow-sm bg-card">
+                    <CardContent className="pt-5 pb-5">
                         <form onSubmit={handleSearch} className="flex gap-2">
                             <Input
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search by name, phone, email, passport number..."
-                                className="max-w-md"
+                                className="max-w-md bg-muted/30"
                             />
-                            <Button type="submit">
+                            <Button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium">
                                 <Search className="mr-2 h-4 w-4" /> Search
                             </Button>
                         </form>

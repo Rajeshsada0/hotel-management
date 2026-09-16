@@ -3,8 +3,11 @@ import { Head, router } from '@inertiajs/react';
 import { ShieldAlert, Search, Filter, Clock, User, Globe, Eye } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import type { AuditLog, BreadcrumbItem } from '@/types';
 
 interface Props {
@@ -62,61 +65,94 @@ export default function AuditLogsIndex({ logs, modules, filters }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Audit Logs & Activity Stream" />
 
-            <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto w-full">
-                {/* Header */}
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                        <ShieldAlert className="h-6 w-6 text-primary" />
-                        System Audit Logs & Activity Stream
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Complete chronological audit trail of hotel operations, check-ins, payments, stock movements, and staff activities.
-                    </p>
+            <div className="flex flex-col gap-6 p-6">
+                {/* Hero Banner */}
+                <PageHero
+                    badge="Security & Compliance"
+                    badgeIcon={ShieldAlert}
+                    title="System Audit Logs & Activity Stream"
+                    description="Complete chronological audit trail of operations, front desk check-ins, payment transactions, stock changes, and operator events."
+                />
+
+                {/* KPI Stat Cards */}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <StatCard
+                        title="Total Events"
+                        value={logs.total}
+                        subtitle="Audited system actions"
+                        icon={Clock}
+                        color="blue"
+                    />
+                    <StatCard
+                        title="Front Desk Activity"
+                        value={logs.data.filter((l) => l.module === 'front_desk' || l.module === 'reservations').length}
+                        subtitle="Check-ins & bookings"
+                        icon={ShieldAlert}
+                        color="emerald"
+                    />
+                    <StatCard
+                        title="Financial Events"
+                        value={logs.data.filter((l) => l.module === 'billing').length}
+                        subtitle="Payments & folios"
+                        icon={Globe}
+                        color="purple"
+                    />
+                    <StatCard
+                        title="System Operators"
+                        value={new Set(logs.data.map((l) => l.user_name)).size}
+                        subtitle="Unique active users"
+                        icon={User}
+                        color="amber"
+                    />
                 </div>
 
                 {/* Filters */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-card p-4 rounded-xl border">
-                    <form onSubmit={handleFilter} className="flex flex-1 flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search by description, operator name, or IP address..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="pl-9"
-                            />
-                        </div>
+                <Card className="rounded-xl border border-border/60 shadow-sm bg-card">
+                    <CardContent className="pt-5 pb-5">
+                        <form onSubmit={handleFilter} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Search by description, operator name, or IP address..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="pl-9 bg-muted/30"
+                                />
+                            </div>
 
-                        <div className="flex items-center gap-2">
-                            <Filter className="h-4 w-4 text-muted-foreground" />
-                            <select
-                                value={selectedModule}
-                                onChange={(e) => setSelectedModule(e.target.value)}
-                                className="h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                            >
-                                <option value="">All Modules</option>
-                                {Object.entries(modules).map(([key, label]) => (
-                                    <option key={key} value={key}>{label}</option>
-                                ))}
-                            </select>
-                        </div>
+                            <div className="flex items-center gap-2">
+                                <Filter className="h-4 w-4 text-muted-foreground" />
+                                <select
+                                    value={selectedModule}
+                                    onChange={(e) => setSelectedModule(e.target.value)}
+                                    className="h-9 rounded-md border border-input bg-muted/30 px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                                >
+                                    <option value="">All Modules</option>
+                                    {Object.entries(modules).map(([key, label]) => (
+                                        <option key={key} value={key}>{label}</option>
+                                    ))}
+                                </select>
+                            </div>
 
-                        <Button type="submit" variant="secondary">Filter Logs</Button>
-                        {(filters.search || filters.module) && (
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={() => {
-                                    setSearch('');
-                                    setSelectedModule('');
-                                    router.get('/audit-logs');
-                                }}
-                            >
-                                Reset
-                            </Button>
-                        )}
-                    </form>
-                </div>
+                            <div className="flex items-center gap-2">
+                                <Button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium">Filter Logs</Button>
+                                {(filters.search || filters.module) && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => {
+                                            setSearch('');
+                                            setSelectedModule('');
+                                            router.get('/audit-logs');
+                                        }}
+                                    >
+                                        Reset
+                                    </Button>
+                                )}
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
 
                 {/* Audit Log Table */}
                 <div className="rounded-xl border bg-card overflow-hidden shadow-sm">

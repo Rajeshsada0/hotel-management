@@ -4,10 +4,11 @@ import {
     Search,
     Users,
     BedDouble,
-    CheckCircle2,
+    DoorOpen,
     CalendarCheck,
     ArrowRight,
-    Sparkles,
+    PlusCircle,
+    LayoutGrid,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +17,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import AppLayout from '@/layouts/app-layout';
 import type { Hotel, Room, RoomType } from '@/types';
 
@@ -50,6 +53,9 @@ export default function Availability({ hotel, availableRooms, roomTypes, filters
         });
     };
 
+    // Calculate nights count
+    const nights = Math.max(1, Math.round((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24)) || 1);
+
     // Group available rooms by Room Type
     const roomsByType = availableRooms.reduce<Record<string, { type: RoomType; rooms: Room[] }>>((acc, room) => {
         const typeName = room.room_type?.name ?? 'Standard';
@@ -70,23 +76,67 @@ export default function Availability({ hotel, availableRooms, roomTypes, filters
             <Head title="Room Availability Search" />
 
             <div className="flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                        <CalendarRange className="h-6 w-6 text-primary" />
-                        Room Availability Search
-                    </h1>
-                    <p className="text-sm text-muted-foreground">
-                        Check real-time room availability and prevent double bookings for requested stay dates.
-                    </p>
+                {/* Hero Banner matching Dashboard style */}
+                <PageHero
+                    badge="Front Desk & Room Inventory"
+                    badgeIcon={CalendarRange}
+                    title="Room Availability & Stays"
+                    description="Search real-time room availability across all accommodation tiers, prevent double-bookings, and reserve guest stays."
+                >
+                    <Button variant="outline" size="sm" asChild className="bg-white/95 text-slate-800 hover:bg-white hover:text-slate-900 border-0 shadow-sm font-medium">
+                        <Link href="/front-desk">
+                            <LayoutGrid className="mr-2 h-4 w-4 text-slate-700" />
+                            Front Desk Board
+                        </Link>
+                    </Button>
+                    <Button variant="default" size="sm" asChild className="bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium">
+                        <Link href="/reservations/create">
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            New Booking
+                        </Link>
+                    </Button>
+                </PageHero>
+
+                {/* KPI Summary Stat Cards */}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <StatCard
+                        title="Available Rooms"
+                        value={availableRooms.length}
+                        subtitle="Ready for check-in"
+                        icon={DoorOpen}
+                        color="emerald"
+                    />
+                    <StatCard
+                        title="Categories Available"
+                        value={Object.keys(roomsByType).length || roomTypes.length}
+                        subtitle="Active room types"
+                        icon={BedDouble}
+                        color="blue"
+                    />
+                    <StatCard
+                        title="Stay Duration"
+                        value={`${nights} Night${nights > 1 ? 's' : ''}`}
+                        subtitle={`${checkIn} to ${checkOut}`}
+                        icon={CalendarCheck}
+                        color="purple"
+                    />
+                    <StatCard
+                        title="Guest Filter"
+                        value={`${adults + children} Guests`}
+                        subtitle={`${adults} Adults, ${children} Children`}
+                        icon={Users}
+                        color="amber"
+                    />
                 </div>
 
                 {/* Filter / Search Bar */}
-                <Card className="border shadow-sm">
-                    <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-semibold">Search Criteria</CardTitle>
+                <Card className="rounded-xl border border-border/60 shadow-sm bg-card">
+                    <CardHeader className="pb-3 border-b border-border/50">
+                        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                            <Search className="h-4 w-4 text-primary" /> Search Criteria & Dates
+                        </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="pt-4">
                         <form onSubmit={handleSearch} className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-5 items-end">
                             <div className="space-y-1.5">
                                 <Label htmlFor="check_in_date">Check-in Date</Label>
@@ -150,7 +200,7 @@ export default function Availability({ hotel, availableRooms, roomTypes, filters
                                 </div>
                             </div>
 
-                            <Button type="submit" className="w-full">
+                            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium">
                                 <Search className="mr-2 h-4 w-4" /> Check Availability
                             </Button>
                         </form>
@@ -161,18 +211,18 @@ export default function Availability({ hotel, availableRooms, roomTypes, filters
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <h2 className="text-base font-semibold text-foreground">
-                            Available Rooms for Stay: {checkIn} to {checkOut} ({availableRooms.length} rooms ready)
+                            Available Accommodations: {checkIn} to {checkOut} ({availableRooms.length} rooms ready)
                         </h2>
                     </div>
 
                     {availableRooms.length === 0 ? (
-                        <Card className="p-8 text-center">
-                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground mb-3">
+                        <Card className="rounded-xl border border-border/60 p-8 text-center bg-card shadow-sm">
+                            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400 mb-3">
                                 <CalendarRange className="h-6 w-6" />
                             </div>
                             <h3 className="font-semibold text-base">No rooms available for the selected dates</h3>
                             <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
-                                All rooms in this category are either occupied, reserved, or undergoing maintenance. Try selecting different dates or room categories.
+                                All rooms in this category are either occupied, reserved, or undergoing turnover. Try selecting alternative stay dates or categories.
                             </p>
                         </Card>
                     ) : (
@@ -186,9 +236,9 @@ export default function Availability({ hotel, availableRooms, roomTypes, filters
                                                 Base Rate: {currency}{Number(group.type.base_price).toFixed(2)}/night · Max Capacity: {group.type.max_adults} Adults, {group.type.max_children} Children
                                             </p>
                                         </div>
-                                        <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-300">
+                                        <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300">
                                             {group.rooms.length} Available
-                                        </Badge>
+                                        </span>
                                     </div>
 
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -196,15 +246,15 @@ export default function Availability({ hotel, availableRooms, roomTypes, filters
                                             const price = room.price ? Number(room.price) : Number(group.type.base_price);
 
                                             return (
-                                                <Card key={room.id} className="border shadow-sm hover:border-primary/50 transition-colors">
+                                                <Card key={room.id} className="rounded-xl border border-border/60 shadow-sm hover:shadow-md hover:border-primary/50 transition-all bg-card">
                                                     <CardHeader className="pb-2">
                                                         <div className="flex items-center justify-between">
                                                             <span className="text-xl font-bold tracking-tight text-foreground">
                                                                 Room {room.room_number}
                                                             </span>
-                                                            <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                                                            <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300">
                                                                 Available
-                                                            </Badge>
+                                                            </span>
                                                         </div>
                                                         <CardDescription className="text-xs">
                                                             Floor {room.floor} · {room.bed_type}
@@ -218,7 +268,7 @@ export default function Availability({ hotel, availableRooms, roomTypes, filters
                                                             </span>
                                                         </div>
 
-                                                        <Button className="w-full" asChild>
+                                                        <Button className="w-full bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium" asChild>
                                                             <Link
                                                                 href={`/reservations/create?check_in_date=${checkIn}&check_out_date=${checkOut}&room_type_id=${room.room_type_id}&room_id=${room.id}&adults=${adults}&children=${children}`}
                                                             >

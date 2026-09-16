@@ -21,6 +21,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import AppLayout from '@/layouts/app-layout';
 import type { Hotel, Reservation, Room, RoomType, RoomStatus } from '@/types';
 
@@ -122,35 +124,30 @@ export default function FrontDeskIndex({
             <Head title="Front Desk Operations" />
 
             <div className="flex flex-col gap-6 p-6">
-                {/* Top Control Bar */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                            <LogIn className="h-6 w-6 text-primary" /> Front Desk Operations
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Manage guest arrivals, check-ins, check-outs, and live room occupancy.
-                        </p>
-                    </div>
+                {/* Hero Banner */}
+                <PageHero
+                    badge="Front Desk & Operations"
+                    badgeIcon={LogIn}
+                    title="Front Desk & Guest Movements"
+                    description="Real-time control over arrivals, check-ins, departures, room keys, and guest folios."
+                >
+                    <Button variant="outline" size="sm" asChild className="bg-white/95 text-slate-800 hover:bg-white hover:text-slate-900 border-0 shadow-sm font-medium">
+                        <Link href="/availability">
+                            <Search className="mr-2 h-4 w-4 text-slate-700" /> Check Availability
+                        </Link>
+                    </Button>
 
-                    <div className="flex items-center gap-2">
-                        <Button variant="outline" asChild>
-                            <Link href="/availability">
-                                <Search className="mr-2 h-4 w-4" /> Check Availability
-                            </Link>
-                        </Button>
-
-                        <Dialog open={isWalkInOpen} onOpenChange={setIsWalkInOpen}>
-                            <DialogTrigger asChild>
-                                <Button>
-                                    <UserPlus className="mr-2 h-4 w-4" /> Express Walk-In
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
-                                <DialogHeader>
-                                    <DialogTitle>Express Walk-In Guest Check-In</DialogTitle>
-                                </DialogHeader>
-                                <form onSubmit={handleWalkInSubmit} className="space-y-4 pt-2">
+                    <Dialog open={isWalkInOpen} onOpenChange={setIsWalkInOpen}>
+                        <DialogTrigger asChild>
+                            <Button size="sm" className="bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium">
+                                <UserPlus className="mr-2 h-4 w-4" /> Express Walk-In
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                                <DialogTitle>Express Walk-In Guest Check-In</DialogTitle>
+                            </DialogHeader>
+                            <form onSubmit={handleWalkInSubmit} className="space-y-4 pt-2">
                                     <div className="border-b pb-3">
                                         <h3 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-2">
                                             1. Guest Details
@@ -322,7 +319,39 @@ export default function FrontDeskIndex({
                                 </form>
                             </DialogContent>
                         </Dialog>
-                    </div>
+                </PageHero>
+
+                {/* KPI Summary Stat Cards */}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <StatCard
+                        title="Today's Arrivals"
+                        value={arrivals.length}
+                        subtitle="Guests scheduled today"
+                        icon={LogIn}
+                        color="blue"
+                    />
+                    <StatCard
+                        title="In-House Guests"
+                        value={inHouse.length}
+                        subtitle="Currently occupied rooms"
+                        icon={UserCheck}
+                        color="emerald"
+                    />
+                    <StatCard
+                        title="Today's Departures"
+                        value={departures.length}
+                        subtitle="Check-outs pending"
+                        icon={LogOut}
+                        color="amber"
+                    />
+                    <StatCard
+                        title="Available Rooms"
+                        value={rooms.filter((r) => r.status === 'available').length}
+                        subtitle="Ready for walk-in"
+                        icon={BedDouble}
+                        color="purple"
+                        href="/availability"
+                    />
                 </div>
 
                 {/* Tabs */}

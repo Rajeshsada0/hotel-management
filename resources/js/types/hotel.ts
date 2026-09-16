@@ -10,6 +10,8 @@ export type Hotel = {
     website?: string | null;
     tax_number?: string | null;
     logo?: string | null;
+    banner_image?: string | null;
+    banner_color?: string | null;
     currency: string;
     currency_symbol: string;
     check_in_time: string;

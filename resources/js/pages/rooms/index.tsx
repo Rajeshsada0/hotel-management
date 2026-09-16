@@ -19,6 +19,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import AppLayout from '@/layouts/app-layout';
 import type { Room, RoomType, RoomStatus } from '@/types';
 
@@ -103,22 +105,20 @@ export default function RoomsIndex({ rooms, roomTypes, floors, filters }: RoomsP
             <Head title="Rooms & Room Types" />
 
             <div className="flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground">Rooms & Room Types</h1>
-                        <p className="text-sm text-muted-foreground">
-                            Manage your hotel rooms, floor allocations, pricing, and room categories.
-                        </p>
-                    </div>
-
+                {/* Hero Banner */}
+                <PageHero
+                    badge="Property & Accommodation"
+                    badgeIcon={BedDouble}
+                    title="Rooms & Room Types"
+                    description="Configure guest rooms, floor allocations, pricing tiers, amenities, and room status management."
+                >
                     <div className="flex items-center gap-2">
                         {/* Tab Switcher */}
-                        <div className="flex rounded-lg border bg-muted p-1 text-sm">
+                        <div className="flex rounded-lg border border-white/20 bg-white/10 backdrop-blur-md p-1 text-sm">
                             <button
                                 onClick={() => setTab('rooms')}
                                 className={`rounded-md px-3 py-1 font-medium transition-all ${
-                                    tab === 'rooms' ? 'bg-background shadow text-foreground' : 'text-muted-foreground'
+                                    tab === 'rooms' ? 'bg-white text-slate-900 shadow-sm' : 'text-blue-100 hover:text-white'
                                 }`}
                             >
                                 Rooms ({rooms.length})
@@ -126,7 +126,7 @@ export default function RoomsIndex({ rooms, roomTypes, floors, filters }: RoomsP
                             <button
                                 onClick={() => setTab('types')}
                                 className={`rounded-md px-3 py-1 font-medium transition-all ${
-                                    tab === 'types' ? 'bg-background shadow text-foreground' : 'text-muted-foreground'
+                                    tab === 'types' ? 'bg-white text-slate-900 shadow-sm' : 'text-blue-100 hover:text-white'
                                 }`}
                             >
                                 Room Types ({roomTypes.length})
@@ -331,6 +331,38 @@ export default function RoomsIndex({ rooms, roomTypes, floors, filters }: RoomsP
                             </Dialog>
                         )}
                     </div>
+                </PageHero>
+
+                {/* KPI Stat Cards */}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <StatCard
+                        title="Total Rooms"
+                        value={rooms.length}
+                        subtitle="Registered units"
+                        icon={BedDouble}
+                        color="blue"
+                    />
+                    <StatCard
+                        title="Available & Ready"
+                        value={rooms.filter((r) => r.status === 'available').length}
+                        subtitle="Vacant & inspected"
+                        icon={DoorOpen}
+                        color="emerald"
+                    />
+                    <StatCard
+                        title="Occupied"
+                        value={rooms.filter((r) => r.status === 'occupied').length}
+                        subtitle="Currently staying"
+                        icon={BedDouble}
+                        color="purple"
+                    />
+                    <StatCard
+                        title="Turnover / Maint."
+                        value={rooms.filter((r) => ['dirty', 'cleaning', 'maintenance'].includes(r.status)).length}
+                        subtitle="Housekeeping queue"
+                        icon={Sparkles}
+                        color="amber"
+                    />
                 </div>
 
                 {/* Content: Rooms Tab */}

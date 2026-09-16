@@ -3,9 +3,12 @@ import { Head, router, usePage } from '@inertiajs/react';
 import { Ticket, Plus, Search, CheckCircle, XCircle, Percent, DollarSign, Calendar, AlertCircle } from 'lucide-react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import type { BreadcrumbItem, Coupon, Hotel } from '@/types';
 
 interface Props {
@@ -89,52 +92,83 @@ export default function CouponsIndex({ coupons, filters }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Coupons & Promotional Discounts" />
 
-            <div className="flex flex-col gap-6 p-6 max-w-7xl mx-auto w-full">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                            <Ticket className="h-6 w-6 text-primary" />
-                            Coupons & Promotional Discounts
-                        </h1>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            Create and manage percentage and fixed discount coupons for front desk and online guest reservations.
-                        </p>
-                    </div>
-
-                    <Button onClick={() => setIsCreateOpen(true)} className="gap-2 shrink-0">
+            <div className="flex flex-col gap-6 p-6">
+                {/* Hero Banner */}
+                <PageHero
+                    badge="Promotions & Marketing"
+                    badgeIcon={Ticket}
+                    title="Coupons & Promotional Discounts"
+                    description="Create and manage percentage and fixed discount coupons for front desk and online guest reservations."
+                >
+                    <Button onClick={() => setIsCreateOpen(true)} className="gap-2 shrink-0 bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium">
                         <Plus className="h-4 w-4" />
                         Create Coupon
                     </Button>
+                </PageHero>
+
+                {/* KPI Stat Cards */}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <StatCard
+                        title="Total Coupons"
+                        value={coupons.total}
+                        subtitle="Registered discount codes"
+                        icon={Ticket}
+                        color="blue"
+                    />
+                    <StatCard
+                        title="Active Promos"
+                        value={coupons.data.filter((c) => c.is_active).length}
+                        subtitle="Currently redeemable"
+                        icon={CheckCircle}
+                        color="emerald"
+                    />
+                    <StatCard
+                        title="Percentage Codes"
+                        value={coupons.data.filter((c) => c.discount_type === 'percentage').length}
+                        subtitle="% Off rate discounts"
+                        icon={Percent}
+                        color="purple"
+                    />
+                    <StatCard
+                        title="Fixed Discounts"
+                        value={coupons.data.filter((c) => c.discount_type === 'fixed').length}
+                        subtitle="Flat cash reduction"
+                        icon={DollarSign}
+                        color="amber"
+                    />
                 </div>
 
                 {/* Filter and search */}
-                <div className="flex items-center gap-4 bg-card p-4 rounded-xl border">
-                    <form onSubmit={handleSearch} className="flex flex-1 items-center gap-2">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search by coupon code or campaign name..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="pl-9"
-                            />
-                        </div>
-                        <Button type="submit" variant="secondary">Filter</Button>
-                        {filters.search && (
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                onClick={() => {
-                                    setSearch('');
-                                    router.get('/coupons');
-                                }}
-                            >
-                                Reset
-                            </Button>
-                        )}
-                    </form>
-                </div>
+                <Card className="rounded-xl border border-border/60 shadow-sm bg-card">
+                    <CardContent className="pt-5 pb-5">
+                        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row items-center gap-3">
+                            <div className="relative flex-1 w-full">
+                                <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Search by coupon code or campaign name..."
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="pl-9 bg-muted/30"
+                                />
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                                <Button type="submit" className="bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium">Filter</Button>
+                                {filters.search && (
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => {
+                                            setSearch('');
+                                            router.get('/coupons');
+                                        }}
+                                    >
+                                        Reset
+                                    </Button>
+                                )}
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
 
                 {/* Coupons Table */}
                 <div className="rounded-xl border bg-card overflow-hidden shadow-sm">

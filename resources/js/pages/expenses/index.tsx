@@ -25,6 +25,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import AppLayout from '@/layouts/app-layout';
 import type { Expense, Hotel, Staff } from '@/types';
 
@@ -136,82 +138,61 @@ export default function ExpensesIndex({
             <Head title="Expense & Staff Management" />
 
             <div className="flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                            <Wallet className="h-6 w-6 text-primary" /> Expense & Staff Management
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Track hotel operational expenditures, utilities, payroll, and staff personnel directory.
-                        </p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setIsAddStaffOpen(true)}
-                        >
-                            <Users className="h-4 w-4 mr-1.5" /> Add Staff Member
-                        </Button>
-                        <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => setIsCreateExpenseOpen(true)}
-                        >
-                            <Plus className="h-4 w-4 mr-1.5" /> Log New Expense
-                        </Button>
-                    </div>
-                </div>
+                {/* Hero Banner */}
+                <PageHero
+                    badge="Human Resources & Finance"
+                    badgeIcon={Wallet}
+                    title="Expense & Staff Management"
+                    description="Track hotel operational expenditures, facility utilities, employee payroll, and staff directory."
+                >
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-white/95 text-slate-800 hover:bg-white hover:text-slate-900 border-0 shadow-sm font-medium"
+                        onClick={() => setIsAddStaffOpen(true)}
+                    >
+                        <Users className="h-4 w-4 mr-1.5 text-slate-700" /> Add Staff Member
+                    </Button>
+                    <Button
+                        variant="default"
+                        size="sm"
+                        className="bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium"
+                        onClick={() => setIsCreateExpenseOpen(true)}
+                    >
+                        <Plus className="h-4 w-4 mr-1.5" /> Log New Expense
+                    </Button>
+                </PageHero>
 
                 {/* Summary Metrics */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardDescription>{summary.month} Expenses</CardDescription>
-                            <CardTitle className="text-2xl font-bold text-rose-600 dark:text-rose-400">
-                                {currency}{summary.total_amount.toFixed(2)}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                <TrendingDown className="h-3.5 w-3.5 text-rose-500" /> Operational expenditure
-                            </span>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardDescription>Hotel Staff Headcount</CardDescription>
-                            <CardTitle className="text-2xl font-bold">{staffList.length}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-xs text-muted-foreground">Across all hotel departments</span>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardDescription>Monthly Payroll Commitment</CardDescription>
-                            <CardTitle className="text-2xl font-bold">
-                                {currency}
-                                {staffList.reduce((sum, s) => sum + Number(s.salary), 0).toFixed(2)}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-xs text-muted-foreground">Active employee monthly salaries</span>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardDescription>Total Expense Entries</CardDescription>
-                            <CardTitle className="text-2xl font-bold">{expenses.total}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <span className="text-xs text-muted-foreground">Audited expense records</span>
-                        </CardContent>
-                    </Card>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <StatCard
+                        title={`${summary.month} Expenses`}
+                        value={`${currency}${summary.total_amount.toFixed(2)}`}
+                        subtitle="Operational expenditure"
+                        icon={TrendingDown}
+                        color="rose"
+                    />
+                    <StatCard
+                        title="Staff Headcount"
+                        value={staffList.length}
+                        subtitle="Active employees"
+                        icon={Users}
+                        color="blue"
+                    />
+                    <StatCard
+                        title="Monthly Payroll"
+                        value={`${currency}${staffList.reduce((sum, s) => sum + Number(s.salary), 0).toFixed(2)}`}
+                        subtitle="Salary commitments"
+                        icon={Briefcase}
+                        color="purple"
+                    />
+                    <StatCard
+                        title="Expense Entries"
+                        value={expenses.total}
+                        subtitle="Audited expense records"
+                        icon={Receipt}
+                        color="emerald"
+                    />
                 </div>
 
                 {/* Tabs */}

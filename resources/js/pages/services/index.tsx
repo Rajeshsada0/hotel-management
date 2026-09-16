@@ -19,6 +19,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageHero } from '@/components/page-hero';
+import { StatCard } from '@/components/stat-card';
 import AppLayout from '@/layouts/app-layout';
 import type { Hotel, Reservation, Service, ServiceOrder } from '@/types';
 
@@ -89,22 +91,18 @@ export default function ServicesIndex({
             <Head title="Hotel Services & Incidentals" />
 
             <div className="flex flex-col gap-6 p-6">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                            <Sparkles className="h-6 w-6 text-primary" /> Hotel Services & Incidentals
-                        </h1>
-                        <p className="text-sm text-muted-foreground">
-                            Manage hotel amenities catalog (Laundry, Spa, Airport Transfer, Minibar) and charge to guest folios.
-                        </p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
+                {/* Hero Banner */}
+                <PageHero
+                    badge="Guest Services & Amenities"
+                    badgeIcon={Sparkles}
+                    title="Hotel Services & Incidentals"
+                    description="Manage amenities catalog (Laundry, Spa, Airport Transfer, Minibar) and charge incidentals directly to guest folios."
+                >
+                    <div className="flex flex-wrap items-center gap-2">
                         {/* Charge Service to Room Modal */}
                         <Dialog open={isOrderServiceOpen} onOpenChange={setIsOrderServiceOpen}>
                             <DialogTrigger asChild>
-                                <Button>
+                                <Button size="sm" className="bg-blue-600 hover:bg-blue-500 text-white shadow-sm font-medium">
                                     <Plus className="mr-2 h-4 w-4" /> Charge Service to Room
                                 </Button>
                             </DialogTrigger>
@@ -210,8 +208,8 @@ export default function ServicesIndex({
                         {/* Add Service Modal */}
                         <Dialog open={isCreateServiceOpen} onOpenChange={setIsCreateServiceOpen}>
                             <DialogTrigger asChild>
-                                <Button variant="outline">
-                                    <Plus className="mr-2 h-4 w-4" /> Add Service
+                                <Button variant="outline" size="sm" className="bg-white/95 text-slate-800 hover:bg-white hover:text-slate-900 border-0 shadow-sm font-medium">
+                                    <Plus className="mr-2 h-4 w-4 text-slate-700" /> Add Service
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="max-w-md">
@@ -299,6 +297,38 @@ export default function ServicesIndex({
                             </DialogContent>
                         </Dialog>
                     </div>
+                </PageHero>
+
+                {/* KPI Stat Cards */}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    <StatCard
+                        title="Active Services"
+                        value={services.length}
+                        subtitle="Catalog offerings"
+                        icon={Sparkles}
+                        color="blue"
+                    />
+                    <StatCard
+                        title="Service Orders"
+                        value={orders.total}
+                        subtitle="Completed & posted"
+                        icon={ShoppingBag}
+                        color="emerald"
+                    />
+                    <StatCard
+                        title="In-House Guests"
+                        value={inHouseReservations.length}
+                        subtitle="Eligible for folio charging"
+                        icon={Bed}
+                        color="purple"
+                    />
+                    <StatCard
+                        title="Incidentals Value"
+                        value={`$${orders.data.reduce((sum, o) => sum + Number(o.total_price || 0), 0).toFixed(2)}`}
+                        subtitle="Billed service charges"
+                        icon={DollarSign}
+                        color="amber"
+                    />
                 </div>
 
                 {/* Tab Switcher */}

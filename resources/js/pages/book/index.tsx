@@ -20,11 +20,13 @@ import {
     Wifi,
     Tv,
     Wind,
+    Globe,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import AppLayout from '@/layouts/app-layout';
 import type { Hotel, RoomType } from '@/types';
 
 interface Props {
@@ -157,46 +159,10 @@ export default function PublicBookingIndex({ hotel, roomTypes: initialRoomTypes,
     const totalAmount = Math.max(0, roomSubtotal - couponDiscount + computedTax);
 
     return (
-        <div className="min-h-screen bg-background text-foreground flex flex-col selection:bg-primary selection:text-primary-foreground">
+        <AppLayout breadcrumbs={[{ title: 'Public Booking Site', href: '/book' }]}>
             <Head title={`Book Your Stay – ${hotel?.name || 'Grand Luxury Hotel'}`} />
 
-            {/* Top Bar */}
-            <header className="border-b bg-card/80 backdrop-blur sticky top-0 z-40">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold">
-                            <Building2 className="h-5 w-5" />
-                        </div>
-                        <div>
-                            <span className="font-bold text-base tracking-tight text-foreground block">
-                                {hotel?.name || 'Grand Luxury Hotel & Suites'}
-                            </span>
-                            <span className="text-xs text-muted-foreground flex items-center gap-1">
-                                <MapPin className="h-3 w-3" /> {hotel?.city || 'Downtown'}, {hotel?.country || 'USA'}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-4">
-                        <div className="hidden md:flex items-center gap-4 text-xs text-muted-foreground">
-                            {hotel?.phone && (
-                                <span className="flex items-center gap-1">
-                                    <Phone className="h-3.5 w-3.5 text-primary" /> {hotel.phone}
-                                </span>
-                            )}
-                            {hotel?.email && (
-                                <span className="flex items-center gap-1">
-                                    <Mail className="h-3.5 w-3.5 text-primary" /> {hotel.email}
-                                </span>
-                            )}
-                        </div>
-                        <Button variant="outline" size="sm" asChild className="text-xs font-semibold">
-                            <Link href="/dashboard">Staff Login</Link>
-                        </Button>
-                    </div>
-                </div>
-            </header>
-
+            <div className="flex flex-col gap-0">
             {/* Hero Section */}
             <section className="relative bg-gradient-to-b from-primary/10 via-background to-background py-16 px-4 sm:px-6 border-b">
                 <div className="max-w-5xl mx-auto text-center space-y-4">
@@ -204,7 +170,7 @@ export default function PublicBookingIndex({ hotel, roomTypes: initialRoomTypes,
                         <Sparkles className="h-3.5 w-3.5" /> Best Online Rate Guaranteed
                     </div>
                     <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-foreground">
-                        Experience Comfort & Elegance
+                        Experience Comfort &amp; Elegance
                     </h1>
                     <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
                         Reserve your stay directly with us for exclusive room discounts, flexible check-in, and premium hotel service.
@@ -525,5 +491,6 @@ export default function PublicBookingIndex({ hotel, roomTypes: initialRoomTypes,
                 <p>Check-in Time: {hotel?.check_in_time || '14:00'} • Check-out Time: {hotel?.check_out_time || '11:00'}</p>
             </footer>
         </div>
+        </AppLayout>
     );
 }
